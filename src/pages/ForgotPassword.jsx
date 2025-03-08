@@ -1,7 +1,72 @@
-import React from 'react'
+import React from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import OAuth from "../components/OAuth";
 
 export default function ForgotPassword() {
+  // Allows "email" to be a variable that holds the email input
+  const [email, setEmail] = useState("");
+
+  // Whatever we type will be saved in "email" above
+  function onChange(e) {
+    setEmail(e.target.value);
+  }
+
   return (
-    <div>Forgot Password</div>
-  )
+    <section className="px-4 py-10">
+      <h1 className="text-3xl text-center font-bold mb-6">Forgot Password</h1>
+      <div className="flex flex-col md:flex-row items-center max-w-5xl mx-auto">
+        <div className="mr-6 w-full md:w-1/2 flex justify-center md:justify:end">
+          <img
+            src="https://images.unsplash.com/photo-1586947726958-3d329e3a5d7a?q=80&w=2053&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="goldfish"
+            className="w-[95%] h-auto rounded-3xl"
+          />
+        </div>
+        <div className="w-full md:w-1/2 flex flex-col items-center md:items-start mt-6 md:mt-0">
+          <form className="w-full max-w-[500px]">
+            <input
+              className="mb-5 w-full rounded px-4 py-2 text-gray-700 bg-white transition ease-in-out"
+              type="email"
+              id="email"
+              value={email}
+              onChange={onChange}
+              placeholder="Enter your Email Address"
+            />
+            <div className="gap-3 flex justify-between whitespace-nowrap text-sm sm:text-lg">
+              <p className="mb-6">
+                Don't have an Account?
+                <Link
+                  to="/sign-up"
+                  className="text-red-500 hover:text-red-700 transition duration-500 ease-in-out ml-1"
+                >
+                  Register
+                </Link>
+              </p>
+              <p>
+                <Link
+                  to="/sign-in"
+                  className="text-blue-600 hover:text-blue-800 transition duration-500 ease-in-out"
+                >
+                  Sign in instead
+                </Link>
+              </p>
+            </div>
+            <button
+              className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-300 ease-in-out hover:shadow-lg active:bg-blue-800"
+              type="submit"
+            >
+              Send Reset Password
+            </button>
+            <div className="flex items-center my-4 w-full">
+              <hr className="border-gray-300 flex-grow" />
+              <p className="text-center font-semibold mx-4">OR</p>
+              <hr className="border-gray-300 flex-grow" />
+            </div>
+            <OAuth />
+          </form>
+        </div>
+      </div>
+    </section>
+  );
 }
