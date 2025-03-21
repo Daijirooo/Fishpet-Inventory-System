@@ -1,7 +1,7 @@
 import React from "react";
 
 // Import for <Link></Link>
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 //Used in useState hooks
 import { useState } from "react";
@@ -9,6 +9,8 @@ import { useState } from "react";
 //Icons import https://react-icons.github.io/react-icons/
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import OAuth from "../components/OAuth";
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import { toast } from "react-toastify";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,8 +20,10 @@ export default function SignIn() {
     email: "",
     password: "",
   });
+
   //Allows value={email} instead of value={formData.email}
   const { email, password } = formData;
+  const navigate = useNavigate();
 
   //Whatever we type will be saved in "formData" above
   function onChange(e) {
@@ -27,6 +31,19 @@ export default function SignIn() {
       ...prevState,
       [e.target.id]: e.target.value,
     }));
+  }
+
+  async function onSubmit(e){
+    e.preventDefault()
+    try {
+      const auth = getAuth()
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      if(userCredential.user){
+        navigate("/")
+      }
+    } catch (error) {
+      toast.error("Bad user credentials")
+    }
   }
 
   return (
@@ -41,7 +58,7 @@ export default function SignIn() {
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-center md:items-start mt-6 md:mt-0">
-          <form className="w-full max-w-[500px]">
+          <form onSubmit={onSubmit} className="w-full max-w-[500px]">
             <input
               className="mb-5 w-full rounded px-4 py-2 text-gray-700 bg-white transition ease-in-out"
               type="email"
