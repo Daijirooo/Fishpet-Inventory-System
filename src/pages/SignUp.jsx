@@ -9,6 +9,17 @@ import { useState } from "react";
 //Icons import https://react-icons.github.io/react-icons/
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import OAuth from "../components/OAuth";
+import { doc, setDoc } from "firebase/firestore";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { db } from "../firebase";
+import { serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +31,9 @@ export default function SignUp() {
     password: "",
   });
   //Allows value={email} instead of value={formData.email}
-  const {name, email, password } = formData;
+  const { name, email, password } = formData;
+
+  const navigate = useNavigate()
 
   //Whatever we type will be saved in "formData" above
   function onChange(e) {
@@ -28,6 +41,35 @@ export default function SignUp() {
       ...prevState,
       [e.target.id]: e.target.value,
     }));
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      await updateProfile(auth.currentUser, {
+        displayName: name
+      })
+      const user = userCredential.user;
+      const formDataCopy = {...formData}
+      delete formDataCopy.password
+      formDataCopy.timestamp = serverTimestamp();
+
+      await setDoc(doc(db, "users", user.uid), formDataCopy)
+      navigate("/");
+      console.log(user);
+      toast.success("Sign-up Successful!");
+    } catch (error) {
+      console.log(error);
+      toast.error("An Error has Occured");
+    }
   }
 
   return (
@@ -42,7 +84,7 @@ export default function SignUp() {
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-center md:items-start mt-6 md:mt-0">
-          <form className="w-full max-w-[500px]">
+          <form className="w-full max-w-[500px]" onSubmit={onSubmit}>
             <input
               className="mb-5 w-full rounded px-4 py-2 text-gray-700 bg-white transition ease-in-out"
               type="text"
@@ -111,7 +153,7 @@ export default function SignUp() {
               <p className="text-center font-semibold mx-4">OR</p>
               <hr className="border-gray-300 flex-grow" />
             </div>
-            <OAuth/>
+            <OAuth />
           </form>
         </div>
       </div>
